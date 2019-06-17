@@ -1,0 +1,249 @@
+unit uMain;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, ComCtrls, XPMan, Menus, uClientControl, ExtCtrls, uLogin, uAdminCentre, dmHaven_NEST, uCheckIO;
+
+type
+  TfrmMain = class(TForm)
+    lbl1: TLabel;
+    lbl2: TLabel;
+    grpOptions: TGroupBox;
+    stat1: TStatusBar;
+    btnClientCC: TButton;
+    xpmnfst1: TXPManifest;
+    btnSponserCC: TButton;
+    btnEventM: TButton;
+    mmMain: TMainMenu;
+    File1: TMenuItem;
+    N1: TMenuItem;
+    Exit1: TMenuItem;
+    Exit2: TMenuItem;
+    btnAdminCentre: TButton;
+    Image1: TImage;
+    Timer1: TTimer;
+    btnStatistics: TButton;
+    Button1: TButton;
+    procedure btnClientCCClick(Sender: TObject);
+    procedure Exit2Click(Sender: TObject);
+    procedure btnSponserCCClick(Sender: TObject);
+    procedure N1Click(Sender: TObject);
+    procedure btnEventMClick(Sender: TObject);
+    procedure btnAdminCentreClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure Timer1Timer(Sender: TObject);
+    procedure btnStatisticsClick(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmMain: TfrmMain;
+
+implementation
+
+{$R *.dfm}
+
+
+procedure TfrmMain.btnClientCCClick(Sender: TObject);
+begin
+  {Client Control Centre}
+  // Initialize:
+  stat1.Panels[0].Text := 'Loading...';
+  Application.ProcessMessages;
+
+  // load Form:
+  frmMain.Hide;
+  frmAddPerson.Show;
+  frmAddPerson.pgc1.ActivePage := frmAddPerson.tsClientControl;
+
+  // Finalize:
+  stat1.Panels[0].Text := 'Ready';
+  Application.ProcessMessages;
+
+end;
+
+procedure TfrmMain.Exit2Click(Sender: TObject);
+begin
+  {Exit}
+  if (MessageDlg('Are you sure you want to exit this application ?', mtConfirmation, [mbYes, mbNo], 1)) = mrYes then
+  Application.Terminate;
+end;
+
+procedure TfrmMain.btnSponserCCClick(Sender: TObject);
+begin
+  {Sponser Control Centre}
+  // Initialize:
+  stat1.Panels[0].Text := 'Loading...';
+  Application.ProcessMessages;
+
+  // Load Form:
+  frmMain.Hide;
+  frmAddPerson.Show;
+  frmAddPerson.pgc1.ActivePage := frmAddPerson.tsSponser;
+
+  // Finalize:
+  stat1.Panels[0].Text := 'Ready';
+  Application.ProcessMessages;
+end;
+
+procedure TfrmMain.N1Click(Sender: TObject);
+begin
+  {Logout}
+  // Initialize:
+  stat1.Panels[0].Text := 'Loging out...';
+  Application.ProcessMessages;
+
+  // Load Form:
+  frmMain.Hide;
+  frmLogin.Show;
+
+  // Finalize:
+  stat1.Panels[0].Text := 'Ready';
+  Application.ProcessMessages;
+end;
+
+procedure TfrmMain.btnEventMClick(Sender: TObject);
+begin
+  {Event Management}
+  // Initialize:
+  stat1.Panels[0].Text := 'Loading...';
+  Application.ProcessMessages;
+
+  // Load Form:
+  frmMain.Hide;
+  frmAddPerson.Show;
+  frmAddPerson.pgc1.ActivePage := frmAddPerson.tsEvents;
+
+  // Finalize:
+  stat1.Panels[0].Text := 'Ready';
+  Application.ProcessMessages;
+end;
+
+procedure TfrmMain.btnAdminCentreClick(Sender: TObject);
+var
+  sAuthorise : String;
+begin
+  {Admin Centre}
+  
+  // Initialize:
+  stat1.Panels[0].Text := 'Loading...';
+  Application.ProcessMessages;
+
+  // Get Authorisation Passcode:
+  sAuthorise := InputBox('Authorise Access', 'Enter your admin passcode.', '');
+
+  // Check if passcode is entered:
+  if sAuthorise = '' then
+    Exit;
+
+  with dmHaven do
+  begin
+    // Filter by logged on employee:
+    tblEMPLOYEE.Filtered := False;
+    tblEMPLOYEE.Filter   := 'EmpID =' +QuotedStr(sEmpID);
+    tblEMPLOYEE.Filtered := True;
+
+    // Check if passcode is correct:
+    if (sAuthorise = tblEMPLOYEE['Password']) and (tblEMPLOYEE['Administrator']) then
+    begin
+      MessageDlg('Access granted!', mtInformation, [mbOK] ,0);
+      frmMain.Hide;
+      frmAdminCentre.Visible := True;
+      frmAdminCentre.pgcAdmin.ActivePage := frmAdminCentre.tsAddEmployee;
+    end
+    else
+      MessageDlg('Access Denied! You do not have admin rights.', mtWarning, [mbOK], 0);
+      Exit;
+
+  end;//with
+
+  // Finalize:
+  stat1.Panels[0].Text := 'Ready';
+  Application.ProcessMessages;
+
+end;
+
+procedure TfrmMain.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  {Exit}
+  Application.Terminate;
+end;
+
+procedure TfrmMain.Timer1Timer(Sender: TObject);
+begin
+  // show time
+  stat1.Panels[1].Text := TimeToStr(Now);
+end;
+
+procedure TfrmMain.btnStatisticsClick(Sender: TObject);
+var
+  sPasscode : string;
+begin
+  {STATISTICS}
+
+  // Initialize:
+  stat1.Panels[0].Text := 'Loading...';
+  Application.ProcessMessages;
+
+  // View stats page:
+  sPasscode := InputBox('Authorise Access', 'Enter passcode.', '');
+  if sPasscode = '' then
+    Exit;
+
+  with dmHaven do
+  begin
+    // Filter by logged on employee:
+    tblEMPLOYEE.Filtered := False;
+    tblEMPLOYEE.Filter   := 'EmpID =' +QuotedStr(sEmpID);
+    tblEMPLOYEE.Filtered := True;
+
+    {Check Authorise}
+    if UpperCase(sPasscode) = 'IMBOSS' then
+    begin
+      MessageDlg('Access granted!', mtInformation, [mbOK] ,0);
+      frmAddPerson.Hide;
+      frmAdminCentre.Visible := True;
+      frmAdminCentre.pgcAdmin.ActivePage := frmAdminCentre.tsStatistics;
+    end
+    else if (sPasscode = tblEMPLOYEE['Password']) and (tblEMPLOYEE['Administrator']) then
+    begin
+      MessageDlg('Access granted!', mtInformation, [mbOK] ,0);
+      frmAddPerson.Hide;
+      frmAdminCentre.Visible := True;
+      frmAdminCentre.pgcAdmin.ActivePage := frmAdminCentre.tsStatistics;
+    end
+    else
+      MessageDlg('Access Denied! You do not have admin rights.', mtWarning, [mbOK], 0);
+      Exit;
+
+  end;//with
+  // Finalize:
+  stat1.Panels[0].Text := 'Ready';
+  Application.ProcessMessages;
+end;
+
+procedure TfrmMain.Button1Click(Sender: TObject);
+begin
+  {Client I / O}
+
+  // Initialize:
+  stat1.Panels[0].Text := 'Loading...';
+  Application.ProcessMessages;
+
+  // Load Form:
+  frmMain.Hide;
+  frmCheckLog.Visible := True;
+
+  // Finalize:
+  stat1.Panels[0].Text := 'Ready';
+  Application.ProcessMessages;
+
+end;
+
+end.

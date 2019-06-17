@@ -1,0 +1,27 @@
+program Pascka;
+
+uses
+  Forms,
+  uLogin in 'uLogin.pas' {frmLogin},
+  uMain in 'uMain.pas' {frmMain},
+  uNewParcel in 'uNewParcel.pas' {frmNewParcel},
+  uParcel in 'uParcel.pas',
+  uSearch in 'uSearch.pas' {frmSearch},
+  dmParcel in 'dmParcel.pas' {DataModule1: TDataModule},
+  Vcl.Themes,
+  Vcl.Styles,
+  uSplashscreen in 'uSplashscreen.pas' {Spalshscreen};
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  TStyleManager.TrySetStyle('Charcoal Dark Slate');
+  Application.CreateForm(TfrmLogin, frmLogin);
+  Application.CreateForm(TfrmMain, frmMain);
+  Application.CreateForm(TfrmSearch, frmSearch);
+  Application.CreateForm(TfrmNewParcel, frmNewParcel);
+  Application.CreateForm(TDataModule1, DataModule1);
+  Application.CreateForm(TSpalshscreen, Spalshscreen);
+  Application.Run;
+end.                             
